@@ -1,0 +1,28 @@
+\ProvidesFile{starchart-1.def}[2020/03/20 v0.1.0 starchart]
+
+\addstarcatalogue{6.752569403}{-16.71314306}{-1.44}{Sirius}% HIP 32349
+\addstarcatalogue{6.399191842}{-52.69571799}{-0.62}{Canopus}% HIP 30438
+\addstarcatalogue{14.261207602}{19.18726997}{-0.05}{Arcturus}% HIP 69673
+\addstarcatalogue{14.661360689}{-60.83514707}{-0.01}{$\alpha$ Centauri}% HIP 71683 Rigil Kentaurus (Alpha Centauri A)
+\addstarcatalogue{14.660941889}{-60.83947139}{1.35}{}% HIP 71681 Toliman (Alpha Centauri B)
+\addstarcatalogue{18.615607221}{38.78299311}{0.03}{Vega}% HIP 91262
+\addstarcatalogue{5.278137678}{45.99902927}{0.08}{Capella}% HIP 24608
+\addstarcatalogue{5.242297569}{-8.20163919}{0.18}{Rigel}% HIP 24436
+\addstarcatalogue{7.655149463}{5.22750767}{0.40}{Procyon}% HIP 37279
+\addstarcatalogue{1.628542136}{-57.23666007}{0.45}{Achernar}% HIP 7588
+\addstarcatalogue{5.919524774}{7.40703634}{0.45}{Betelgeuse}% HIP 27989
+\addstarcatalogue{14.063734599}{-60.37297840}{0.61}{Hadar}% HIP 68702
+\addstarcatalogue{19.846300573}{8.86738491}{0.76}{Altair}% HIP 97649
+\addstarcatalogue{12.443317057}{-63.09905586}{0.77}{Acrux}% HIP 60718
+\addstarcatalogue{4.598666797}{16.50976164}{0.87}{Aldebaran}% HIP 21421
+\addstarcatalogue{13.419890153}{-11.16124491}{0.98}{Spica}% HIP 65474
+\addstarcatalogue{16.490129869}{-26.43194608}{1.06}{Antares}% HIP 80763
+\addstarcatalogue{7.755378842}{28.02631031}{1.16}{Pollux}% HIP 37826
+\addstarcatalogue{22.960784882}{-29.62183701}{1.17}{Fomalhaut}% HIP 113368
+\addstarcatalogue{12.795366358}{-59.68873246}{1.25}{Mimosa}% HIP 62434
+\addstarcatalogue{20.690531513}{45.28033423}{1.25}{Deneb}% HIP 102098
+\addstarcatalogue{10.139572050}{11.96719513}{1.36}{Regulus}% HIP 49669
+
+\addstarcatalogue{2.529743126}{89.26413805}{1.97}{Polaris}% HIP 11767
+
+\addstarcatalogue{2.322440735}{-2.97706055}{6.47}{Mira}% HIP 10826

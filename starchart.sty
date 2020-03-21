@@ -1,0 +1,286 @@
+%
+% starchart.sty
+%
+% Copyright 2020 h20y6m
+%   GitHub:   https://github.com/h20y6m
+%
+% This package is distributed under the MIT License.
+%
+
+\RequirePackage{expl3}
+\ProvidesExplPackage{starchart}{2020/03/20}{0.1.0}
+  {Drawing star chart}
+
+\RequirePackage{l3keys2e,xparse}
+
+\RequirePackage{tikz}
+
+% --------------------------------------------------------------------
+% Variables
+
+\seq_new:N \g__starchart_catalogue_seq
+
+\fp_new:N \l__starchart_location_latitude_fp
+\fp_new:N \l__starchart_location_longitude_fp
+
+\fp_new:N \l__starchart_timezone_fp
+\fp_new:N \l__starchart_datetime_fp
+
+\fp_new:N \l__starchart_sidereal_time_fp
+
+\dim_new:N \l__starchart_tmpa_dim
+
+\fp_new:N \l__starchart_tmpa_fp
+\fp_new:N \l__starchart_tmpb_fp
+\fp_new:N \l__starchart_tmpc_fp
+\fp_new:N \l__starchart_tmpx_fp
+\fp_new:N \l__starchart_tmpy_fp
+\fp_new:N \l__starchart_tmpz_fp
+
+\tl_new:N \l__starchart_option_catalogue_tl
+
+% --------------------------------------------------------------------
+% Options
+
+\keys_define:nn { starchart }
+  {
+    catalogue .choices:nn = { 1, 2, 3, 4, 5, 6 }
+      { \tl_set:Nn \l__starchart_option_catalogue_tl {#1} },
+    catalogue .initial:n = { 4 }
+  }
+
+\ProcessKeysOptions { starchart }
+
+% --------------------------------------------------------------------
+% Helpers
+
+\cs_new:Npn \__starchart_to_jd:nnnnnn #1#2#3#4#5#6
+  {
+    \int_compare:nNnTF {#2} < { 3 }
+      {
+        \__starchart_to_jd_aux:nnnnnn
+          { \int_eval:n { (#1) - 1 } }
+          { \int_eval:n { (#2) + 12 } }
+      }
+      {
+        \__starchart_to_jd_aux:nnnnnn
+          {#1} {#2}
+      }
+    {#3} {#4} {#5} {#6}
+  }
+\cs_new:Npn \__starchart_to_jd_aux:nnnnnn #1#2#3#4#5#6
+  {
+    \fp_eval:n
+      {
+        floor(365.25 * (#1))
+          + floor((#1) / 400)
+          - floor((#1) / 100)
+          + floor(30.59 * ((#2) - 2))
+          + (#3)
+          + 1721088.5
+          + (#4) / 24
+          + (#5) / 1440
+          + (#6) / 86400
+      }
+  }
+
+\cs_new:Npn \__starchart_fp_mod:nn #1#2
+  {
+    \fp_eval:n { (#1) - floor( (#1) / (#2) ) * (#2) }
+  }
+
+% --------------------------------------------------------------------
+% 
+
+% --------------------------------------------------------------------
+% 
+
+\cs_new:Npn \starchart_clear_catalogue:
+  {
+    \seq_gclear:N \g__starchart_catalogue_seq
+  }
+
+\cs_new:Npn \starchart_add_catalogue:nnnn #1#2#3#4
+  {
+    \seq_gput_right:Nn \g__starchart_catalogue_seq
+      { {#1} {#2} {#3} {#4} }
+  }
+
+\cs_new:Npn \starchart_set_location:nn #1#2
+  {
+    \fp_set:Nn \l__starchart_location_longitude_fp {#1}
+    \fp_set:Nn \l__starchart_location_latitude_fp {#2}
+  }
+
+\cs_new:Npn \starchart_set_timezone:n #1
+  {
+    \fp_set:Nn \l__starchart_timezone_fp {#1}
+  }
+
+\cs_new:Npn \starchart_set_datetime:nnnnnn #1#2#3#4#5#6
+  {
+    \fp_set:Nn \l__starchart_datetime_fp
+      {
+        \__starchart_to_jd:nnnnnn
+          {#1} {#2} {#3} {#4} {#5} {#6}
+        - \l__starchart_timezone_fp / 24
+      }
+  }
+
+\cs_new:Npn \starchart_draw:n #1
+  {
+    \__starchart_set_sidereal_time:nn
+      { \l__starchart_datetime_fp }
+      { \l__starchart_location_longitude_fp }
+    \dim_set:Nn \l__starchart_tmpa_dim {#1}
+    \begin{tikzpicture}
+        [x=\l__starchart_tmpa_dim,
+         y=\l__starchart_tmpa_dim,
+         baseline=0pt]
+      \useasboundingbox(-0.5,-0.5) rectangle (0.5,0.5);
+      \fill [black] (0,0) circle [radius=0.5];
+      \draw [gray] (0,0) circle [radius=0.5];
+      \draw [gray] (0,0) circle [radius=0.33333];
+      \draw [gray] (0,0) circle [radius=0.16666];
+      \draw [gray] (0,-0.5) -- (0,0.5);
+      \draw [gray] (-0.25,-0.433) -- (0.25,0.433);
+      \draw [gray] (-0.433,-0.25) -- (0.433,0.25);
+      \draw [gray] (-0.5,0) -- (0.5,0);
+      \draw [gray] (-0.433,0.25) -- (0.433,-0.25);
+      \draw [gray] (-0.25,0.433) -- (0.25,-0.433);
+      \node [ text = red, font = \sffamily \tiny,
+        anchor = south ] at (0,-0.5) {S};
+      \node [ text = red, font = \sffamily \tiny,
+        anchor = west ] at (-0.5,0) {E};
+      \node [ text = red, font = \sffamily \tiny,
+        anchor = north ] at (0,0.5) {N};
+      \node [ text = red, font = \sffamily \tiny,
+        anchor = east ] at (0.5,0) {W};
+      \seq_map_inline:Nn \g__starchart_catalogue_seq
+        { \__starchart_draw_star:nnnn ##1 }
+    \end{tikzpicture}
+  }
+
+\cs_new:Npn \__starchart_set_sidereal_time:nn #1#2
+  {
+    \fp_set:Nn \l__starchart_sidereal_time_fp
+      {
+        24 *
+        \__starchart_fp_mod:nn
+          {
+            0.7790572732640
+            + 1.00273781191135448
+              * ((#1) - 2451545.0)
+            + (#2) / 360
+          }
+          { 1 }
+      }
+  }
+
+\cs_new:Npn \__starchart_draw_star:nnnn #1#2#3#4
+  {
+    \fp_set:Nn \l__starchart_tmpa_fp
+      { ((#1) - \l__starchart_sidereal_time_fp) * pi / 12 }
+    \fp_set:Nn \l__starchart_tmpb_fp
+      { (#2) * pi / 180 }
+    \fp_set:Nn \l__starchart_tmpc_fp
+      { \l__starchart_location_latitude_fp * pi / 180 }
+    \fp_set:Nn \l__starchart_tmpz_fp
+      {
+        cos(\l__starchart_tmpa_fp)
+          * cos(\l__starchart_tmpb_fp)
+          * cos(\l__starchart_tmpc_fp)
+        + sin(\l__starchart_tmpb_fp)
+          * sin(\l__starchart_tmpc_fp)
+      }
+    \fp_compare:nNnF { \l__starchart_tmpz_fp } < { 0 }
+      {
+        \fp_set:Nn \l__starchart_tmpx_fp
+          {
+            cos(\l__starchart_tmpa_fp)
+              * cos(\l__starchart_tmpb_fp)
+              * sin(\l__starchart_tmpc_fp)
+            - sin(\l__starchart_tmpb_fp)
+              * cos(\l__starchart_tmpc_fp)
+          }
+        \fp_set:Nn \l__starchart_tmpy_fp
+          {
+            sin(\l__starchart_tmpa_fp)
+              * cos(\l__starchart_tmpb_fp)
+          }
+        \fp_set:Nn \l__starchart_tmpa_fp
+          { atan(\l__starchart_tmpy_fp, \l__starchart_tmpx_fp) }
+        \fp_set:Nn \l__starchart_tmpb_fp
+          { 0.5 - asin(\l__starchart_tmpz_fp) / pi }
+        \fp_set:Nn \l__starchart_tmpx_fp
+          { -\l__starchart_tmpb_fp * sin(\l__starchart_tmpa_fp) }
+        \fp_set:Nn \l__starchart_tmpy_fp
+          { -\l__starchart_tmpb_fp * cos(\l__starchart_tmpa_fp) }
+        \__starchart_draw_star_plot:nnn
+          { \fp_use:N \l__starchart_tmpx_fp }
+          { \fp_use:N \l__starchart_tmpy_fp }
+          {#3}
+        \tl_if_empty:nF {#4}
+          {
+            \__starchart_draw_star_name:nnn
+              { \fp_use:N \l__starchart_tmpx_fp }
+              { \fp_use:N \l__starchart_tmpy_fp }
+              {#4}
+          }
+      }
+  }
+\cs_new:Npn \__starchart_draw_star_plot:nnn #1#2#3
+  {
+    \fill [ white ] (#1,#2)
+      circle [ radius = \fp_to_decimal:n { 0.005 * 0.631 ^ ( #3 ) } ];
+  }
+\cs_new:Npn \__starchart_draw_star_name:nnn #1#2#3
+  {
+    \node [
+      text = yellow,
+      font = \sffamily \tiny,
+%      inner~sep = 0pt,
+      anchor = west ] at (#1,#2)
+      {#3};
+  }
+
+% --------------------------------------------------------------------
+% LaTeX2e interface
+
+\NewDocumentCommand \clearstarcatalogue {}
+  {
+    \starchart_clear_catalogue:
+  }
+
+\NewDocumentCommand \addstarcatalogue { m m m m }
+  {
+    \starchart_add_catalogue:nnnn {#1} {#2} {#3} {#4}
+  }
+
+\NewDocumentCommand \setstartchartlocation { m m }
+  {
+    \starchart_set_location:nn {#1} {#2}
+  }
+
+\NewDocumentCommand \setstartcharttimezone { m }
+  {
+    \starchart_set_timezone:n {#1}
+  }
+
+\NewDocumentCommand \setstartchartdatetime { m m m m m m }
+  {
+    \starchart_set_datetime:nnnnnn {#1} {#2} {#3} {#4} {#5} {#6}
+  }
+
+\NewDocumentCommand \starchart { o m }
+  {
+    \starchart_draw:n {#2}
+  }
+
+% --------------------------------------------------------------------
+% Load star catalogue
+
+\int_step_inline:nn { \l__starchart_option_catalogue_tl }
+  {
+    \input{starchart-#1.def}
+  }

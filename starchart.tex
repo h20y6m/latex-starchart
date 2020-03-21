@@ -1,0 +1,108 @@
+\documentclass[autodetect-engine,dvi=dvipdfmx,ja=standard,a4paper]{bxjsarticle}
+\usepackage{amsmath}
+\usepackage{lmodern}
+\usepackage[colorlinks]{hyperref}
+\usepackage{bxghost}
+
+\usepackage{starchart}
+
+\renewcommand\labelitemii{$\circ$}
+
+\newcommand{\pkg}[1]{\eghostguarded{\textsf{#1}}}
+\newcommand{\cmd}[1]{\eghostguarded{\texttt{\symbol{92}#1}}}
+\newcommand{\Arg}[1]{\eghostguarded{\texttt{\symbol{123}}$\langle$\mbox{}#1\mbox{}$\rangle$}\texttt{\symbol{125}}}
+
+
+\title{\pkg{starchart}パッケージ}
+\author{h20y6m\thanks{\url{https://github.com/h20y6m}}}
+\date{2020年3月20日}
+
+\begin{document}
+
+\maketitle
+
+\section{概要}
+
+\LaTeX で\pkg{tikz}を利用して星図を描画する。
+
+\section{パッケージ読込}
+
+\cmd{usepackage}命令を用いて読み込む。
+\begin{quote}\begin{verbatim}
+\usepackage[<オプション>]{starchart}
+\end{verbatim}\end{quote}
+
+オプションは以下のものがある。
+\begin{itemize}
+  \item \texttt{catalogue=<1/2/3/4/5/6>}\\
+  読み込む星表のサイズ。
+  \begin{itemize}
+    \item \texttt{1}：一等星（$\mathrm{Vmag}<1.5$）22に加えポラリス（北極星）と変光星ミラ含む。
+    \item \texttt{2}：\texttt{1}に加え二等星（$1.5 \le \mathrm{Vmag} < 2.5$）70を含む。
+    \item \texttt{3}：\texttt{2}に加え三等星（$2.5 \le \mathrm{Vmag} < 3.5$）192を含む。
+    \item \texttt{4}：\texttt{3}に加え四等星（$3.5 \le \mathrm{Vmag} < 4.5$）622を含む。
+    \item \texttt{5}：\texttt{4}に加え五等星（$4.5 \le \mathrm{Vmag} < 5.5$）1909を含む。
+    \item \texttt{6}：\texttt{5}に加え六等星（$5.5 \le \mathrm{Vmag} < 6.5$）5968を含む。
+  \end{itemize} 
+\end{itemize}
+
+\section{機能}
+
+\subsection{星表}
+
+\begin{itemize}
+  \item \cmd{clearstarcatalogue}\\
+  星表からすべての星を削除する。
+  \item \cmd{addstarcatalogue}\Arg{赤経}\Arg{赤緯}\Arg{視等級}\Arg{名前}\\
+  星表に星を追加する。
+  \begin{itemize}
+    \item 赤経：赤経（時）を表す浮動小数式（$0 \le \text{赤経} < 24$）。
+    \item 赤緯：赤緯（度）を表す浮動小数式（$-90 \le \text{赤緯} \le 90$）。
+    \item 視等級：視等級を表す浮動小数式。
+    \item 名前：名前を表すトークンリスト。
+  \end{itemize}
+\end{itemize}
+
+\subsection{位置と時刻}
+
+\begin{itemize}
+  \item \cmd{setstartchartlocation}\Arg{経度}\Arg{緯度}\\
+  観測地点の緯度・経度を設定する。
+  \begin{itemize}
+    \item 経度：東経を正、西経を負とする浮動小数式（$-180 < \text{経度} \le 180$）。
+    \item 緯度：北緯を正、南緯を負とする浮動小数式（$-90 \le \text{緯度} \le 90$）。
+  \end{itemize}
+  \item \cmd{setstartcharttimezone}\Arg{タイムゾーンオフセット}\\
+  タイムゾーンを設定する。
+  \item \cmd{setstartchartdatetime}\Arg{年}\Arg{月}\Arg{日}\Arg{時}\Arg{分}\Arg{秒}\\
+  観測時刻を設定する。
+\end{itemize}
+
+\subsection{描画}
+
+\begin{itemize}
+  \item \cmd{starchart}\Arg{サイズ}\\
+  星図を描画する。
+\end{itemize}
+
+\section{サンプル}
+
+東京の日本標準時2020年3月20日午後9時を描画する場合は以下のように記述する。
+\begin{quote}\begin{verbatim}
+\setstartcharttimezone{9}
+\setstartchartdatetime{2020}{3}{20}{21}{0}{0}
+\setstartchartlocation{139.69172}{35.68956}
+\starchart{\textwidth}
+\end{verbatim}\end{quote}
+これをタイプセットすると図\ref{fig1}が得られる。
+
+\begin{figure}
+  \setstartcharttimezone{9}% JST
+  \setstartchartdatetime{2020}{3}{20}{21}{0}{0}% 2020/3/20 21:00
+  \setstartchartlocation{139.69172}{35.68956}% Tokyo
+  \starchart{\textwidth}
+  \caption{2020/3/20 21:00 JST\quad Tokyo}
+  \label{fig1}
+\end{figure}
+
+\end{document}
